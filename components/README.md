@@ -1,0 +1,3 @@
+- 1、请将static目录下文件复制到根目录的static文件夹下
+- 2、qiun-title-bar文件夹可删除
+- 3、其他的都不要动，直接原样复制到您项目中的components目录
