@@ -20,8 +20,7 @@
 				</template>
 				<!-- #endif -->
 			</cl-topbar>
-		</view> -->
-
+		</view> 
 		<!-- 消息列表 -->
 		<view class="message-list" @tap="onRetract">
 			<scroll-view
@@ -97,12 +96,12 @@
 						:adjust-position="false"
 						@focus="onFocus"
 						@blur="onBlur"
-						@confirm="onTextSend"
+						@confirm="isOnSubmit"
 						@keyboardheightchange="onKeyBoardHeightChange"
 					></cl-input>
 				</view>
 
-				<view @tap="onTextSend">
+				<view @tap="isOnSubmit">
 					<!-- <text
 						class="chat-iconfont cl-icon-enter"
 						@tap="onTextSend"
@@ -153,7 +152,12 @@ const recorderManager = uni.getRecorderManager();
 // 平台
 const { platform } = uni.getSystemInfoSync();
 
+//这里直接关掉激励视频
+let videoAd = false;
+// 在页面中定义插屏广告
+let interstitialAd = null
 export default {
+
 	components: {
 		ChatTools,
 		ChatMessage,
@@ -219,13 +223,33 @@ export default {
 			},
 			// 加载进度
 			loading: false,
+			inputContent: '',
+			askNumber: 2
 		};
 	},
 	onLoad() {
-		
-		// this.getUserProfile();
-		
-		
+		this.initAskNumber();
+		// 在页面onLoad回调事件中创建激励视频广告实例
+		if (wx.createRewardedVideoAd) {
+		  videoAd = wx.createRewardedVideoAd({
+		    adUnitId: 'adunit-fa982ad5ced9f51c'
+		  })
+		  videoAd.onLoad(() => {console.log("加载了")})
+		  videoAd.onError((err) => {console.log("err")})
+		  videoAd.onClose((res) => {
+			  if(res.isEnded){
+				  console.log("加载了",res)
+				  let askNumberSync = uni.getStorageSync('askNumberSync');
+				  if(askNumberSync){
+				  	this.askNumber = this.askNumber+10;
+				  }else{
+				  	this.askNumber = 10;
+				  }
+				  uni.setStorageSync('askNumberSync',this.askNumber);
+				  console.log(this.askNumber)
+			  }
+			  })
+		}
 	},
 	computed: {
 		// 计算屏幕高度
@@ -246,8 +270,36 @@ export default {
 			return `00:${t < 10 ? `0${t}` : t}`;
 		},
 	},
-
+	onShow() {
+		this.initAskNumber();
+	},
 	methods: {
+		initAskNumber(){
+			let askNumberSync = uni.getStorageSync('askNumberSync');
+			if(askNumberSync || askNumberSync==0){
+				this.askNumber = askNumberSync;
+			}
+		},
+		isOnSubmit(){
+			let that = this
+			console.log(this.askNumber)
+			if(this.askNumber<=0){
+				uni.showModal({
+					title: '提示',
+					content: '您的免费次数用完,确定后看广告。可得10次机会',
+					success: function (res) {
+						if (res.confirm) {
+							that.onTextSend();
+						} else if (res.cancel) {
+							console.log('用户点击取消');
+						}
+					}
+				});
+			}else{
+				that.onTextSend();
+			}
+		
+		},
 		// 监听键盘高度
 		onKeyBoardHeightChange(e) {
 			this.keyBoardHeight = e.detail.height;
@@ -383,40 +435,46 @@ export default {
 		// 发送消息
 		onTextSend() {
 			let that = this;
-			if (this.value) {
-				let tbAnsweUser = uni.getStorageSync('tbAnsweUser');
-				let checkData ={
-					"answeUserOpenid": tbAnsweUser.answeUserOpenid,
-				}
-				request('', '/ai/checkIsIng', 'GET', checkData, {}).then(res => {
-
-					if (res == true) {
-						//如果返回的是true,提示,正在查询请稍后重试
-						uni.showToast({
-							title: "正在回复",
-							icon: 'error',
-							duration: 2000
-						});
-						return;
-					}else{
-						console.log("这块不应该运行")
-						that.sendMessage(
-							{
-								contentType: 0,
-								content: {
-									text: that.value,
-								},
-							},
-							true
-						);
-						
-						that.value = "";
+			
+			if(this.askNumber<=0){
+				this.videoAdLoad();	
+			}else{
+				if (this.value) {
+					let tbAnsweUser = uni.getStorageSync('tbAnsweUser');
+					let checkData ={
+						"answeUserOpenid": tbAnsweUser.answeUserOpenid,
 					}
-				})
+					request('', '/ai/checkIsIng', 'GET', checkData, {}).then(res => {
 				
-				
-
+					that.askNumber = that.askNumber - 1
+					uni.setStorageSync('askNumberSync',that.askNumber);
+						if (res == true) {
+							//如果返回的是true,提示,正在查询请稍后重试
+							uni.showToast({
+								title: "正在回复",
+								icon: 'error',
+								duration: 2000
+							});
+							return;
+						}else{
+							that.sendMessage(
+								{
+									contentType: 0,
+									content: {
+										text: that.value,
+									},
+								},
+								true
+							);
+							
+							that.value = "";
+						}
+					})
+				}
 			}
+			
+			
+
 		},
 		
 
@@ -605,6 +663,22 @@ export default {
 			// that.list = JSON.parse(tbAnsweUser.answeUserJson)
 			// console.log(that.list)
 		  },
+		  videoAdLoad() {
+		  	// let rewardedVideoAd = null
+		  	var that = this
+		  	console.log("我来加载数据1")
+		  	if (true) {
+		  		console.log("我来加载数据")
+		  	  videoAd.show().catch(() => {
+		  	    // 失败重试
+		  	    videoAd.load()
+		  	      .then(() => videoAd.show())
+		  	      .catch(err => {
+		  	        console.log('激励视频 广告显示失败')
+		  	      })
+		  	  })
+		  	}
+		  }
 		
 		
 	},

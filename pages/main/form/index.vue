@@ -8,13 +8,9 @@
 			<u-transition :show="true" mode="fade-left">
 				<view class="panel">
 					<view class="head">
-						<view class="title">填写您的问题</view>
+						<view class="title">填写您的问题({{askNumber}})</view>
 						<view class="tips">与人工智能对话</view>
 					</view>
-					<view class="ad-box">
-						<ad unit-id="adunit-6e18ed873f6eafe1"></ad>
-					</view>
-					
 					<view class="textarea">
 						<u--textarea height="140" maxlength="-1" v-model="inputContent" placeholder="支持长按粘贴您的问题">
 						</u--textarea>
@@ -26,7 +22,7 @@
 							<u-button icon="file-text" text="粘贴问题"></u-button>
 						</view>
 						<view class="btn get">
-							<u-button @click="onSubmitGPT" iconColor="#ffffff" color="#26B3A0" icon="edit-pen"
+							<u-button @click="isOnSubmit" iconColor="#ffffff" color="#26B3A0" icon="edit-pen"
 								text="获取问题答案"></u-button>
 						</view>
 					</view>
@@ -103,9 +99,6 @@
 				</view>
 			</u-transition>
 		</view>
-		<!-- <view class="share">
-			<u-button open-type="share" shape="circle" color="#26B3A0" :plain="true" icon="share" text="推荐给朋友"></u-button>
-		</view> -->
 	</view>
 </template>
 
@@ -117,18 +110,71 @@
 	export default {
 		data() {
 			return {
-				inputContent: ''
+				inputContent: '',
+				askNumber: 2
 			};
 		},
-		async onLoad() {
-			// this.videoAdLoad()
-			// this.interstitialAdLoad()
-			// setTimeout(() => {
-			// 	this.interstitialAdClick()
-			// }, 2 * 1000)
+		onLoad() {
+			this.initAskNumber();
+			// 在页面onLoad回调事件中创建激励视频广告实例
+			if (wx.createRewardedVideoAd) {
+			  videoAd = wx.createRewardedVideoAd({
+			    adUnitId: 'adunit-bb465b5d3b66e8f5'
+			  })
+			  videoAd.onLoad(() => {console.log("加载了")})
+			  videoAd.onError((err) => {console.log("err")})
+			  videoAd.onClose((res) => {
+				  if(res.isEnded){
+					  console.log("加载了",res)
+					  let askNumberSync = uni.getStorageSync('askNumberSync');
+					  if(askNumberSync){
+					  	this.askNumber = this.askNumber+10;
+					  }else{
+					  	this.askNumber = 10;
+					  }
+					  uni.setStorageSync('askNumberSync',this.askNumber);
+					  console.log(this.askNumber)
+				  }
+				  })
+			}
+		},
+		onShow() {
+			this.initAskNumber();
+			console.log("进入页面")
 		},
 		methods: {
+			initAskNumber(){
+				console.log("初始值:",uni.getStorageSync('askNumberSync'))
+				let askNumberSync = uni.getStorageSync('askNumberSync');
+				if(askNumberSync || askNumberSync === 0){
+					console.log("初始值:",askNumberSync)
+					this.askNumber = askNumberSync;
+				}
+			},
+			isOnSubmit(){
+				let that = this
+				if(this.askNumber<=0){
+					uni.showModal({
+						title: '提示',
+						content: '您的免费次数用完,确定后看广告。可得10次机会',
+						success: function (res) {
+							if (res.confirm) {
+								that.onSubmitGPT();
+							} else if (res.cancel) {
+								console.log('用户点击取消');
+							}
+						}
+					});
+				}else{
+					that.onSubmitGPT();
+				}
+
+			},
 			onSubmitGPT() {
+				if(this.askNumber<=0){
+					this.videoAdLoad();	
+				}else{
+				
 				let that = this;
 				if (that.inputContent === undefined || that.inputContent === null || that.inputContent === '') {
 					uni.showToast({ //提示
@@ -137,8 +183,8 @@
 					})
 					return;
 				}
-
-
+				this.askNumber = this.askNumber - 1
+				uni.setStorageSync('askNumberSync',this.askNumber);
 				let dataParamInput = {
 					inputContent: this.inputContent
 				}
@@ -146,96 +192,24 @@
 					url: '/pages/main/answer/index?dataParamInput=' + encodeURIComponent(JSON.stringify(
 						dataParamInput))
 				})
-			},
-			videoAdClick() {
-				var that = this
-				uni.showLoading({
-					title: '加载中'
-				});
-
-				//激励视频已经关闭,失效了
-				if (videoAd) {
-					videoAd.show().then(() => {
-						uni.hideLoading()
-					}).catch(err => {
-						// 失败重试
-						videoAd.load().then(() => {
-							uni.hideLoading()
-							videoAd.show()
-						}).catch(err => {
-							uni.hideLoading()
-							uni.showToast({
-								icon: 'none',
-								title: '访问人数过多，请稍后再试',
-								duration: 3000
-							});
-							console.log('激励视频 广告显示失败')
-						})
-					})
-				} else {
-					uni.hideLoading()
-					uni.showToast({
-						icon: 'none',
-						title: '系统',
-						duration: 3000
-					});
 				}
 			},
 			videoAdLoad() {
+				// let rewardedVideoAd = null
 				var that = this
-				if (wx.createRewardedVideoAd) {
-					// 加载激励视频广告
-					videoAd = wx.createRewardedVideoAd({
-						adUnitId: "adunit-d2d7b511afea2339"
-					});
-					//捕捉错误
-					videoAd.onError(err => {
-						// 进行适当的提示
-						uni.hideLoading()
-						uni.showToast({
-							icon: 'none',
-							title: '访问人数过多，请稍后再试',
-							duration: 3000
-						});
-						console.log('videoAd onError', err);
-					});
-					// 监听关闭
-					videoAd.onClose(status => {
-						uni.hideLoading()
-						if ((status && status.isEnded) || status === undefined) {
-							// 正常播放结束，下发奖励
-							that.onSubmitGPT()
-						} else {
-							// 播放中途退出，进行提示
-							console.log('中途退出')
-						}
-					});
+				console.log("我来加载数据1")
+				if (true) {
+					console.log("我来加载数据")
+				  videoAd.show().catch(() => {
+				    // 失败重试
+				    videoAd.load()
+				      .then(() => videoAd.show())
+				      .catch(err => {
+				        console.log('激励视频 广告显示失败')
+				      })
+				  })
 				}
-			},
-			interstitialAdClick() {
-				// 在适合的场景显示插屏广告
-				if (interstitialAd) {
-					interstitialAd.show().catch((err) => {
-						console.error(err)
-					})
-				}
-			},
-			interstitialAdLoad() {
-				if (wx.createInterstitialAd) {
-					interstitialAd = wx.createInterstitialAd({
-						adUnitId: 'adunit-42f2e4d677e3b37c'
-					})
-					interstitialAd.onLoad(() => {
-						console.log('onLoad')
-					})
-					interstitialAd.onError((err) => {
-						console.log('err')
-					})
-					interstitialAd.onClose(() => {
-						console.log('关闭')
-					})
-				}
-			},
+			}
 		}
 	}
 </script>
