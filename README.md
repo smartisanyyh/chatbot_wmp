@@ -32,6 +32,26 @@ nodejs
 * 然后直接启动项目即可(有任何我问题可以加入下方QQ群一起交流)
 * 有问题的话群内有大佬协助,搞不好会有人帮你搭建谢谢
 
+
+1.服务器配置
+
+centos7.9
+
+2.宝塔面板安装宝塔
+
+https://www.bt.cn/new/download.html
+
+3.如果在线下载地址报错:
+
+下载xshell : https://rj.mqxsowp.cn/
+
+4.前端使用工具 : 
+
+HBuilder X : https://www.dcloud.io/hbuilderx.html
+
+node.js : https://nodejs.org/en/
+
+
 ## 交流群
 
 QQ群： [![加入QQ群](https://image.hongchiqingyun.com/qqgroup.jpg)](https://qm.qq.com/cgi-bin/qm/qr?k=r9wUrNxH5gX-EdMMdN4cVOt8MyQV2MnL&jump_from=webapi&authKey=UHRma7Iwg1U6UtlS9tWVEfhcU0WaNJuwRW3H1NHNDQjIkIvCpjC/RdNwFaMjxF3W) 
