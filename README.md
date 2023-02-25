@@ -33,6 +33,9 @@ nodejs
 * 有问题的话群内有大佬协助,搞不好会有人帮你搭建谢谢
 
 
+###  **_教程视频_**  : [B站视频教程-小白可搭建](https://space.bilibili.com/342298458/channel/seriesdetail?sid=3077994&ctype=0)
+
+
 1.服务器配置
 
 centos7.9
