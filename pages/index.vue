@@ -529,6 +529,10 @@ export default {
 			
 		},
 		requestChatApi(prompt){
+			uni.showLoading({
+			    title: '回复中',
+				mask:true
+			});
 			let that = this;
 			let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
 			let data = {
@@ -557,7 +561,7 @@ export default {
 						duration: 2000
 					});
 				}
-				// uni.hideLoading();
+				 uni.hideLoading();
 			})
 		},
 		saveChat(data1){
