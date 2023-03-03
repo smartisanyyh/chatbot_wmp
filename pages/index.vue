@@ -283,7 +283,7 @@ export default {
 		isOnSubmit(){
 			let that = this
 			console.log(this.askNumber)
-			if(this.askNumber<=0){
+			if(false){
 				uni.showModal({
 					title: '提示',
 					content: '您的免费次数用完,确定后看广告。可得10次机会',
@@ -436,7 +436,7 @@ export default {
 		onTextSend() {
 			let that = this;
 			
-			if(this.askNumber<=0){
+			if(false){
 				this.videoAdLoad();	
 			}else{
 				if (this.value) {
@@ -446,8 +446,8 @@ export default {
 					}
 					request('', '/ai/checkIsIng', 'GET', checkData, {}).then(res => {
 				
-					that.askNumber = that.askNumber - 1
-					uni.setStorageSync('askNumberSync',that.askNumber);
+					// that.askNumber = that.askNumber - 1
+					// uni.setStorageSync('askNumberSync',that.askNumber);
 						if (res == true) {
 							//如果返回的是true,提示,正在查询请稍后重试
 							uni.showToast({
@@ -529,10 +529,12 @@ export default {
 			
 		},
 		requestChatApi(prompt){
+			
 			uni.showLoading({
 			    title: '回复中',
 				mask:true
 			});
+			
 			let that = this;
 			let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
 			let data = {
@@ -543,6 +545,7 @@ export default {
 				"answeUserJson": tbAnsweUser.answeUserJson,
 				"prompt":prompt,
 			}
+			console.log(tbAnsweUser)
 			request('', '/ai/chatBot', 'POST', data, {}).then(res => {
 				if (res.code == 200) {
 					this.append(res.data);
@@ -553,6 +556,7 @@ export default {
 						"answeUserAvatar": tbAnsweUser.answeUserAvatar,
 						"answeUserJson":JSON.stringify(that.list),
 					}
+					
 					this.saveChat(data1);
 				} else if (res.code == 500) {
 					uni.showToast({
@@ -561,7 +565,7 @@ export default {
 						duration: 2000
 					});
 				}
-				 uni.hideLoading();
+				uni.hideLoading();
 			})
 		},
 		saveChat(data1){

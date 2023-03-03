@@ -19,6 +19,9 @@
 			<u-transition :show="true" mode="slide-right">
 				<view class="desc" style="text-align: center;">{{weichat_adv}}</view>
 			</u-transition>
+			<!-- 			<view class="ad-box">
+				<ad unit-id="adunit-4b7965e593733d4e"></ad>
+			</view> -->
 			<view class="btn-group">
 				<view class="btn">
 					<u-button open-type="share" shape="circle" color="#26B3A0" :plain="true" icon="share" text="推荐给朋友">
@@ -54,6 +57,9 @@
 			this.getCacheContent()
 		},
 		methods: {
+			getVersion(){
+				
+			},
 			onToForm() {
 				uni.switchTab({
 					url: '/pages/main/form/index'
@@ -87,29 +93,33 @@
 			
 			getCacheContent() {
 				let that = this;
-				let content = uni.getStorageSync('weichat_content'); //获取缓存内容
-				//如果有内容，则返回内容
-				if (content) {
-					console.log("获取的内容",content)
-					 // uni.removeStorageSync("weichat_content");
-					this.notice = content.weichat_notice;
-					this.weichat_title = content.weichat_name;
-					this.weichat_adv = content.weichat_adv;
-				} else { 
-					//设置缓存
 				that.getRequestContent();
-				}
+				
+				// let content = uni.getStorageSync('weichat_content'); //获取缓存内容
+				// //如果有内容，则返回内容
+				// if (content) {
+				// 	console.log("获取的内容",content)
+				// 	 // uni.removeStorageSync("weichat_content");
+				// 	this.notice = content.weichat_notice;
+				// 	this.weichat_title = content.weichat_name;
+				// 	this.weichat_adv = content.weichat_adv;
+				// } else { 
+				// 	//设置缓存
+				// that.getRequestContent();
+				// }
 			},
 			getRequestContent(){
+				
 				request('', '/ai/configInfo', 'POST', {}, {}).then(res => {
-					console.log(res)
+					
 					if (res.code == 200) {
-						uni.setStorageSync('weichat_content', res.data);
+						// uni.setStorageSync('weichat_content', res.data);
 						this.notice = res.data.weichat_notice;
 						this.weichat_title = res.data.weichat_name;
 						this.weichat_adv = res.data.weichat_adv;
 					}
 				})
+				
 			}
 		}
 	}

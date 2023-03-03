@@ -8,7 +8,7 @@
 			<u-transition :show="true" mode="fade-left">
 				<view class="panel">
 					<view class="head">
-						<view class="title">填写您的问题({{askNumber}})</view>
+						<view class="title">填写您的问题</view>
 						<view class="tips">与人工智能对话</view>
 					</view>
 					<view class="textarea">
@@ -153,7 +153,7 @@
 			},
 			isOnSubmit(){
 				let that = this
-				if(this.askNumber<=0){
+				if(false){
 					uni.showModal({
 						title: '提示',
 						content: '您的免费次数用完,确定后看广告。可得10次机会',
@@ -171,7 +171,7 @@
 
 			},
 			onSubmitGPT() {
-				if(this.askNumber<=0){
+				if(false){
 					this.videoAdLoad();	
 				}else{
 				
@@ -183,8 +183,8 @@
 					})
 					return;
 				}
-				this.askNumber = this.askNumber - 1
-				uni.setStorageSync('askNumberSync',this.askNumber);
+				// this.askNumber = this.askNumber - 1
+				// uni.setStorageSync('askNumberSync',this.askNumber);
 				let dataParamInput = {
 					inputContent: this.inputContent
 				}
