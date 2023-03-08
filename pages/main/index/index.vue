@@ -14,29 +14,21 @@
 			<u-transition :show="true" mode="slide-right">
 				<view class="desc" style="text-align: center;">拥有最权威的解答</view>
 				<view class="desc" style="text-align: center;">采用的为官方接口</view>
-
 			</u-transition>
 			<u-transition :show="true" mode="slide-right">
 				<view class="desc" style="text-align: center;">{{weichat_adv}}</view>
 			</u-transition>
-			<!-- 			<view class="ad-box">
-				<ad unit-id="adunit-4b7965e593733d4e"></ad>
-			</view> -->
 			<view class="btn-group">
 				<view class="btn">
 					<u-button open-type="share" shape="circle" color="#26B3A0" :plain="true" icon="share" text="推荐给朋友">
 					</u-button>
 				</view>
 				<view class="btn">
-					<u-button @click="gonavigate" shape="circle" color="#26B3A0" :plain="true" icon="play-right-fill"
-						text="开始提问"></u-button>
-						
+						<u-button @click="gonavigatechat" shape="circle" color="#26B3A0" :plain="true" icon="chat-fill" text="对话模式(聊天)"></u-button>
 				</view>
 				<view class="btn">
-						
-						<u-button @click="gonavigatechat" shape="circle" color="#26B3A0" :plain="true" icon="play-right-fill"
-							text="开始对话"></u-button>
-						
+					<u-button @click="gonavigate" shape="circle" color="#26B3A0" :plain="true" icon="play-right-fill"
+						text="提问模式(问答)"></u-button>
 				</view>
 			</view>
 		</view>
@@ -50,16 +42,14 @@
 			return {
 				notice: "",
 				weichat_title: "",
-				weichat_adv: ""
+				weichat_adv: "",
+				version:""
 			};
 		},
 		onLoad() {
 			this.getCacheContent()
 		},
 		methods: {
-			getVersion(){
-				
-			},
 			onToForm() {
 				uni.switchTab({
 					url: '/pages/main/form/index'
@@ -86,7 +76,7 @@
 			gonavigatechat() {
 				uni.navigateTo({
 					//保留当前页面，跳转到应用内的某个页面
-			 	url: '/pages/index',
+			 	url: '/pages/main/chat/index',
 				})
 			},
 			
@@ -120,7 +110,16 @@
 					}
 				})
 				
-			}
+			},
+			/**
+			   * 用户点击右上角分享
+			   */
+			onShareAppMessage: function () {
+			
+			},
+			onShareTimeline: function () {
+			},
+			
 		}
 	}
 </script>

@@ -15,12 +15,18 @@
 		}
 	},
 	{
-		"path": "pages/index",
+		"path": "pages/main/chat/index",
 		"style": {
-			"navigationBarTitleText": "AI生活智能工具箱",
-			"enablePullDownRefresh": false
+			"app-plus": {
+				"softinputNavBar": "none"
+			},
+			"navigationStyle":"default",
+			"navigationBarTitleText":"AI生活智能工具箱",
+			"navigationBarBackgroundColor": "#26B3A0",
+			"navigationBarTextStyle": "white"
 		}
 	},
+
    {
 		"path": "pages/main/ask/index",
 		"style": {

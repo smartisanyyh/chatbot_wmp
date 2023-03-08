@@ -35,61 +35,117 @@
 
 <script>
 	import request from "../../../request/request.js";
+	import requestA from "../../../request/requestA.js";
 	export default {
 		data() {
 			return {
 				inputContent: '',
 				resultContent: '',
 				resultContentText: '',
-				bootAns: 'AI正在整理答案,请稍等...'
+				bootAns: 'AI正在整理答案,请稍等...',
+				is_open_api:'',
+				ai_chat_api:'',
+				open_api_key:''
 			};
 		},
 		onLoad(option) {
+			
 			let data = JSON.parse(decodeURIComponent(option.dataParamInput))
 			this.inputContent = data.inputContent
+			this.is_open_api = data.is_open_api;
+			this.ai_chat_api = data.ai_chat_api;
+			this.open_api_key = data.open_api_key; 
 			this.submitAks(data.inputContent)
 		},
 		methods: {
 			submitAks(inputContent) {
 				let that = this;
-				// uni.showLoading({
-				// 	title: `正在请求,请稍等...`,
-				// 	icon: 'error'
-				// })
-				console.log(inputContent)
-				let data = {
-					"prompt": inputContent
-				}
-				request('', '/ai/chat', 'POST', data, {}).then(res => {
-					console.log(res)
-					if (res.code == 200) {
-						that.resultContent = "<pre>" + res.msg + "</pre>";
-						that.resultContentText = res.msg;
-						// that.loadingText(that.resultContent)
-						that.bootAns = that.resultContentText;
-					} else if (res.code == 500) {
-						if(!res.msg){
+				let urlPost = '/ai/chatBot';
+				if(this.is_open_api ==='1'){
+					let data = {
+						"prompt": inputContent,
+						"key":this.open_api_key
+					}
+					urlPost = this.ai_chat_api
+					requestA('', urlPost, 'POST', data, {}).then(res => {
+						
+						if (res.code == 200) {
+							that.resultContent = "<pre>" + res.msg + "</pre>";
+							that.resultContentText = res.msg;
+							// that.loadingText(that.resultContent)
+							that.bootAns = that.resultContentText;
+						} else if (res.code == 500) {
+							if(!res.msg){
+								uni.showToast({
+									title: '请重新请求',
+									icon: 'error',
+									duration: 2000
+								});
+							}else{
 							uni.showToast({
-								title: '请重新请求',
+								title: res.msg,
 								icon: 'error',
 								duration: 2000
 							});
+							setTimeout(()=> {
+								uni.switchTab({
+									//保留当前页面，跳转到应用内的某个页面
+								url: '/pages/main/form/index',
+								})
+							}, 2000)
+							}
 						}else{
-						uni.showToast({
-							title: res.msg,
-							icon: 'error',
-							duration: 2000
-						});
-						setTimeout(()=> {
-							uni.switchTab({
-								//保留当前页面，跳转到应用内的某个页面
-							url: '/pages/main/form/index',
-							})
-						}, 2000)
+							uni.showToast({
+								title: "请填写正确的请求url",
+								icon: 'error',
+								duration: 2000
+							});
+							setTimeout(()=> {
+								uni.switchTab({
+									//保留当前页面，跳转到应用内的某个页面
+								url: '/pages/main/form/index',
+								})
+							}, 2000)
 						}
+						// uni.hideLoading();
+					})
+				}else{
+					let data = {
+						"prompt": inputContent
 					}
-					// uni.hideLoading();
-				})
+					request('', '/ai/chat', 'POST', data, {}).then(res => {
+						console.log(res)
+						if (res.code == 200) {
+							that.resultContent = "<pre>" + res.msg + "</pre>";
+							that.resultContentText = res.msg;
+							// that.loadingText(that.resultContent)
+							that.bootAns = that.resultContentText;
+						} else if (res.code == 500) {
+							if(!res.msg){
+								uni.showToast({
+									title: '请重新请求',
+									icon: 'error',
+									duration: 2000
+								});
+							}else{
+							uni.showToast({
+								title: res.msg,
+								icon: 'error',
+								duration: 2000
+							});
+							setTimeout(()=> {
+								uni.switchTab({
+									//保留当前页面，跳转到应用内的某个页面
+								url: '/pages/main/form/index',
+								})
+							}, 2000)
+							}
+						}
+						// uni.hideLoading();
+					})
+				}
+				
+
 			},
 			loadingText(text) {
 				let that = this;
@@ -122,6 +178,14 @@
 						}
 					}, true);
 				}
+			},
+			/**
+			   * 用户点击右上角分享
+			   */
+			onShareAppMessage: function () {
+			
+			},
+			onShareTimeline: function () {
 			},
 		}
 	}

@@ -36,6 +36,7 @@
 
 <script>
 	import request from "../../../request/request.js";
+	import requestA from "../../../request/requestA.js";
 	// 在页面中定义插屏广告
 	let interstitialAd = null
 	export default {
@@ -47,7 +48,9 @@
 					title: "问答收录是什么?",
 					content: "问答收录为其他人资讯的问题,由本系统收集起来综合展现在此地。同时也说明此系统的强大。",
 					time: '2023-02-9 12:00:00'
-				}]
+				}],
+				isUseOffical:'',
+				useOfficalUrl:''
 			};
 		},
 		async onLoad() {
@@ -131,7 +134,15 @@
 					}
 					// uni.hideLoading();
 				})
-			}
+			},
+			/**
+			   * 用户点击右上角分享
+			   */
+			onShareAppMessage: function () {
+			
+			},
+			onShareTimeline: function () {
+			},
 		}
 	}
 </script>

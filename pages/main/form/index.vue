@@ -103,6 +103,8 @@
 </template>
 
 <script>
+	import request from "../../../request/request.js";
+	import requestA from "../../../request/requestA.js";
 	//这里直接关掉激励视频
 	let videoAd = false;
 	// 在页面中定义插屏广告
@@ -111,10 +113,14 @@
 		data() {
 			return {
 				inputContent: '',
-				askNumber: 2
+				askNumber: 2,
+				is_open_api:'',
+				ai_chat_api:'',
+				open_api_key:''
 			};
 		},
 		onLoad() {
+			this.getRequestContent();
 			this.initAskNumber();
 			// 在页面onLoad回调事件中创建激励视频广告实例
 			if (wx.createRewardedVideoAd) {
@@ -186,8 +192,12 @@
 				// this.askNumber = this.askNumber - 1
 				// uni.setStorageSync('askNumberSync',this.askNumber);
 				let dataParamInput = {
-					inputContent: this.inputContent
+					inputContent: this.inputContent,
+					open_api_key: this.open_api_key,
+					is_open_api: this.is_open_api,
+					ai_chat_api: this.ai_chat_api
 				}
+				console.log("传递过去的参数",dataParamInput);
 				uni.navigateTo({
 					url: '/pages/main/answer/index?dataParamInput=' + encodeURIComponent(JSON.stringify(
 						dataParamInput))
@@ -209,7 +219,26 @@
 				      })
 				  })
 				}
-			}
+			},
+			getRequestContent(){
+				request('', '/ai/configInfo', 'POST', {}, {}).then(res => {
+					
+					if (res.code == 200) {
+						this.is_open_api = res.data.is_open_api;
+						this.ai_chat_api = res.data.ai_chat_api;
+						this.open_api_key = res.data.open_api_key; 
+					}
+				})
+				
+			},
+			/**
+			   * 用户点击右上角分享
+			   */
+			onShareAppMessage: function () {
+			
+			},
+			onShareTimeline: function () {
+			},
 		}
 	}
 </script>
