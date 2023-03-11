@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "cl-uni": "^1.8.20",
+    "klona": "^2.0.6",
+    "neo-async": "^2.6.2",
+    "sass-loader": "^13.2.0",
+    "uview-ui": "^2.0.35"
+  }
+}
