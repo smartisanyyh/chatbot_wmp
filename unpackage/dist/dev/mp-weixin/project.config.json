@@ -6,16 +6,21 @@
   },
   "setting": {
     "urlCheck": true,
+    "es6": false,
+    "postcss": false,
     "minified": true,
+    "newFeature": true,
+    "bigPackageSizeSupport": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    }
+    },
+    "condition": false
   },
   "compileType": "miniprogram",
   "libVersion": "",
-  "appid": "wx74378f1d2e142c4d",
+  "appid": "wx3db1787b56eec560",
   "projectname": "tixingxiangmu",
   "condition": {},
   "editorSetting": {

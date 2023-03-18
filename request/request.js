@@ -16,7 +16,8 @@ const loginPage = '/pages/login/index'
  
 // 接口请求提示语句
 const msg = '获取中...'
-const baseURL = 'http://127.0.0.1:8081' //此处改成自己的域名
+const baseURL = 'https://chat.zclz.vip' //此处改成自己的域名
+// const baseURL = 'http://localhost:8080' //此处改成自己的域名
 const request = (urlType= '', url = '', type = '', date = {}, header = {
 }) => {
 	var that = this

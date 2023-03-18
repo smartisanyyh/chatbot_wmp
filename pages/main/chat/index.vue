@@ -195,10 +195,85 @@
 				isLoginStatus:false,
 				is_open_api:'',
 				ai_chat_bot_api:'',
-				open_api_key:''
+				open_api_key:'',
+				websock: null,
+				lockReconnect: false,
+				reading:0,
+				last_recive_time:0
 			}
 		},
+		mounted() {
+		   // 调取websocket方法 写在mounted方法中
+		   this.initWebSocket()
+		},
 		methods: {
+			
+			        // 发送websockwt请求
+			initWebSocket() {
+			  let websocketUrl = 'ws://localhost:8080/chat/1'
+			  // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
+			  this.websock =uni.connectSocket({
+				url: websocketUrl,
+				complete: ()=> {} // 由于uni封装，必须加个回调才会返回一个SocketTask对象
+			  })
+				this.websock.onOpen(this.websocketonopen)
+				this.websock.onMessage(this.websocketonmessage)
+				this.websock.onClose(this.websocketclose)
+				this.websock.onError(this.websocketonerror)
+			},
+			  websocketonopen() { // 连接建立之后执行send方法发送数据，连接成功
+					// const data = {
+					// 	token: this.userInfo.access_token
+					// };
+					// if (data.token) {
+					// 	const result = JSON.stringify(data);
+					//     this.websock.send({
+					// 		data: result
+					// 	})
+					// } else {
+					// 	this.websock.close()
+					// }
+				},
+				websocketonmessage (e) { // 数据接收
+							if(!this.reading){
+								//取消加载
+								this.msgLoad=false;
+								//添加机器人所说的话
+								this.msgGo();
+								this.msgList.push({my:false,msg:e.data,type:-1});
+								this.reading=1
+								this.last_recive_time=Date.now()
+							}
+							else{
+								setTimeout(()=>{
+									this.msgList[this.msgList.length-1].msg
+									=this.msgList[this.msgList.length-1].msg+e.data;
+									this.msgList=JSON.parse(JSON.stringify(this.msgList))
+								},(Date.now()-this.last_recive_time)*8)
+							}
+							
+							
+
+							
+				},
+				websocketclose (e) {  // 关闭
+					console.log('断开了重连');
+					this.reconnect()
+			    },
+				websocketonerror () {
+						console.log('断开了重连');
+						this.reconnect()
+				},
+			    reconnect() {
+			        if(this.lockReconnect) return;
+					this.lockReconnect = true;
+				    //没连接上会一直重连，设置延迟避免请求过多
+			        setTimeout( ()=> { 
+						this.initWebSocket();
+						console.log('重连中');
+						this.lockReconnect = false;
+					}, 5000); //这里设置重连间隔(ms)
+			    },
 			//历史信息
 			resetChat(){
 								
@@ -378,7 +453,11 @@
 					// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
 					this.msgList.push({"msg":msg,"my":true})
 					this.msgGo();
-					this.requestChatApi(msg);
+					// this.requestChatApi(msg);
+					let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); 
+					this.websock.send({
+						data: JSON.stringify({"openId":tbAnsweUser.answeUserOpenid,"prompt":"say this is test1","isChat":true})
+					})
 				}
 				
 			},
@@ -511,6 +590,7 @@
 					uni.getUserProfile({
 							desc: '用户登录',
 							success: res => {
+								console.log("getUser",res)
 								uni.showLoading({
 								    title: '登陆中...',
 									mask:true
@@ -538,7 +618,7 @@
 				},		
 				//插入openid以及另一个信息,初始化个人信息  - 将这些信息实例化到数据库
 				InsertOpinID(userInfo){
-					
+					console.log("userinfo",userInfo)
 					
 					
 					let that  = this;
