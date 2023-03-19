@@ -8,13 +8,13 @@
 			<block v-for="(item,index) in qList">
 				<view class="panel" :class="'panel'+index">
 					<view class="head">
-						<view class="title">问：{{item.anserTitle}}</view>
+						<view class="title">问：{{item.title}}</view>
 					</view>
 					<view class="content" :class="[{'example':cIndex===index}]" @click="onClickContent(index)">
-						<rich-text :nodes="item.anserContent"></rich-text>
+						<rich-text :nodes="item.content"></rich-text>
 					</view>
 					<view class="bottom">
-						官方回答时间：{{item.createTime}}
+						官方回答时间：{{item.answerTime}}
 					</view>
 				</view>
 <!-- 				<view v-if="index===0" class="ad-box">
@@ -48,7 +48,7 @@
 				qList: [{
 					title: "问答收录是什么?",
 					content: "问答收录为其他人资讯的问题,由本系统收集起来综合展现在此地。同时也说明此系统的强大。",
-					time: '2023-02-9 12:00:00'
+					answerTime: '2023-02-9 12:00:00'
 				}],
 				isUseOffical:'',
 				useOfficalUrl:''
@@ -117,15 +117,12 @@
 				}
 			},
 			getListDatas(){
-				let data = {
-					"pageNum":1,
-					"pageSize":10
-					
-				}
-				request('', '/chatgpt/employ/list', 'GET', data, {}).then(res => {
+				request('', '/answers/all', 'GET', null, {}).then(res => {
 					console.log(res)
-					if (res.code == 200) {
-						this.qList = res.rows
+					if (res.code == 0) {
+						for (var i of res.data){
+							this.qList=res.data
+						}
 					} else{
 						uni.showToast({
 							title: '请求错误',

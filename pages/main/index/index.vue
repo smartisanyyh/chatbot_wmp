@@ -100,13 +100,17 @@
 			},
 			getRequestContent(){
 				
-				request('', '/ai/configInfo', 'POST', {}, {}).then(res => {
-					
-					if (res.code == 200) {
+				request('', '/sys/config/public', 'GET', {}, {}).then(res => {
+					let map=new  Map()
+					for(var i of res.data){
+						map.set(i.configKey,i.configValue)
+					}
+					console.log(map)
+					if (res.code == 0) {
 						// uni.setStorageSync('weichat_content', res.data);
-						this.notice = res.data.weichat_notice;
-						this.weichat_title = res.data.weichat_name;
-						this.weichat_adv = res.data.weichat_adv;
+						this.notice = map.get("weichat_notice")
+						this.weichat_title = map.get("weichat_name");
+						this.weichat_adv = map.get("weichat_adv");
 					}
 				})
 				

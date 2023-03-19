@@ -5,7 +5,7 @@
 		<view :animation="anData" style="height:0;"></view>
 		<u-sticky>
 			<view class="top-new">
-				<view @click="historyChat()" class="top-reset">历史对话</view>
+				<view @click="selectModel()" class="top-reset">选择模型</view>
 				<view @click="resetChat()" class="top-reset">重置对话</view>
 			</view>
 		</u-sticky>
@@ -132,6 +132,7 @@
 		onLoad() {
 			//获取请求链接
 			this.initLogin()
+			this.loadChatHistory()
 			// 如果需要缓存消息缓存msgList即可
 			// 监听键盘拉起
 			// 因为无法控制键盘拉起的速度,所以这里尽量以慢速处理
@@ -171,12 +172,7 @@
 				showTow: false,
 				// 消息体,定义机器人初次的消息(或者自定义出现时机)
 				// my->谁发的消息 msg->消息文本 type->客服消息模板类型 questionList->快速获取问题答案的问题列表
-				msgList: [{
-					my: false,
-					msg: "你好，我是最牛逼的机器人,有什么您可以问我。",
-					type: 1,
-					questionList: ["我想要写一个50字关于花的诗句", "帮我写一个关于催债的律师函", "你觉得我帅吗"],
-				}],
+				msgList: [],
 				msg: "",
 				go: 0,
 				srcollHeight: 0,
@@ -276,7 +272,6 @@
 					this.lockReconnect = false;
 				}, 5000); //这里设置重连间隔(ms)
 			},
-			//历史信息
 			resetChat() {
 
 				let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
@@ -284,8 +279,9 @@
 				if (tbAnsweUser) {
 					let replyData = {};
 					//进行存储
-					request('', '/chat/resetChat/' + tbAnsweUser.openId, 'DELETE', null, {}).then(res => {
+					request('', '/chat/history/' + tbAnsweUser.openId, 'DELETE', null, {}).then(res => {
 						if (res.code == 0) {
+							this.loadChatHistory()
 							uni.showToast({
 								title: '重置成功',
 								duration: 2000
@@ -304,12 +300,55 @@
 
 
 			},
-			//历史信息
-			historyChat() {
+			//选择模型
+			selectModel() {
 				uni.showToast({
 					title: '开发中',
 					duration: 2000
 				});
+			},
+			//历史信息
+			loadChatHistory() {
+				let tbAnsweUser = uni.getStorageSync('tbAnsweUser');
+				request('', '/chat/history/' + tbAnsweUser.openId, 'GET', null, {}).then(res => {
+					this.msgList=[]
+					this.msgList.push({
+						my: false,
+						msg: "大家好，我是全能机器人小助手，可以回答你们任何问题哦！",
+						type: 1,
+						questionList: ["你认为人工智能会取代人类吗？"
+						, "你能为我推荐一些好的电影吗？","你认为未来会发生什么？"],
+					})
+					if (res.code == 0) {
+						console.log(res.data)
+						
+						for (var i of res.data){
+							if(i.role=='user'){
+								this.msgGo();
+								this.msgList.push({
+									my: true,
+									msg: i.content,
+									type: -1
+								})
+							}else if(i.role=='assistant'){
+								this.msgGo();
+								this.msgList.push({
+									my: false,
+									msg: i.content,
+									type: -1
+								})
+							}
+						}
+					}else{
+						uni.showToast({
+							title: '获取记录失败',
+							icon: 'error',
+							duration: 2000
+						});
+					}
+					
+					console.log(this.msgList)
+				})
 			},
 			//复制
 			copyContent(msg) {
