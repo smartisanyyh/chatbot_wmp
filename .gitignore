@@ -18,5 +18,5 @@ bin-release/
 # information for Eclipse / Flash Builder.
 /node_modules/
 /.idea/
-/unpackage/
+/unpackage/**
 /.hbuilderx/
