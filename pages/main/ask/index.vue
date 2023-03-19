@@ -37,7 +37,6 @@
 
 <script>
 	import request from "../../../request/request.js";
-	import requestA from "../../../request/requestA.js";
 	// 在页面中定义插屏广告
 	let interstitialAd = null
 	export default {

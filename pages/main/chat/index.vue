@@ -120,8 +120,7 @@
 </template>
 
 <script>
-	import request from "../../../request/request.js";
-	import requestA from "../../../request/requestA.js";
+	import request,{wsUrl} from "../../../request/request.js";
 	// rpx和px的比率
 	var l
 	// 可用窗口高度
@@ -196,7 +195,7 @@
 			initWebSocket() {
 				let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
 				if (tbAnsweUser) {
-					let websocketUrl = 'ws://localhost:8080/chat/' + tbAnsweUser.openId
+					let websocketUrl = wsUrl+'/chat/' + tbAnsweUser.openId
 					// WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
 					this.websock = uni.connectSocket({
 						url: websocketUrl,

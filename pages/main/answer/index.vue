@@ -34,6 +34,7 @@
 </template>
 
 <script>
+	import {wsUrl} from "../../../request/request.js";
 	export default {
 		data() {
 			return {
@@ -61,7 +62,7 @@
 			initWebSocket() {
 				let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
 				if (tbAnsweUser) {
-					let websocketUrl = 'ws://localhost:8080/chat/' + tbAnsweUser.openId
+					let websocketUrl = wsUrl+'/chat/' + tbAnsweUser.openId
 					// WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
 					this.websock = uni.connectSocket({
 						url: websocketUrl,
@@ -140,94 +141,6 @@
 						})
 					})
 				}
-				
-				
-				// let that = this;
-				// let urlPost = '/ai/chatBot';
-				// if(this.is_open_api ==='1'){
-				// 	let data = {
-				// 		"prompt": inputContent,
-				// 		"key":this.open_api_key
-				// 	}
-				// 	urlPost = this.ai_chat_api
-				// 	requestA('', urlPost, 'POST', data, {}).then(res => {
-						
-				// 		if (res.code == 200) {
-				// 			that.resultContent = "<pre>" + res.msg + "</pre>";
-				// 			that.resultContentText = res.msg;
-				// 			// that.loadingText(that.resultContent)
-				// 			that.bootAns = that.resultContentText;
-				// 		} else if (res.code == 500) {
-				// 			if(!res.msg){
-				// 				uni.showToast({
-				// 					title: '请重新请求',
-				// 					icon: 'error',
-				// 					duration: 2000
-				// 				});
-				// 			}else{
-				// 			uni.showToast({
-				// 				title: res.msg,
-				// 				icon: 'error',
-				// 				duration: 2000
-				// 			});
-				// 			setTimeout(()=> {
-				// 				uni.switchTab({
-				// 					//保留当前页面，跳转到应用内的某个页面
-				// 				url: '/pages/main/form/index',
-				// 				})
-				// 			}, 2000)
-				// 			}
-				// 		}else{
-				// 			uni.showToast({
-				// 				title: "请填写正确的请求url",
-				// 				icon: 'error',
-				// 				duration: 2000
-				// 			});
-				// 			setTimeout(()=> {
-				// 				uni.switchTab({
-				// 					//保留当前页面，跳转到应用内的某个页面
-				// 				url: '/pages/main/form/index',
-				// 				})
-				// 			}, 2000)
-				// 		}
-				// 		// uni.hideLoading();
-				// 	})
-				// }else{
-				// 	let data = {
-				// 		"prompt": inputContent
-				// 	}
-				// 	request('', '/ai/chat', 'POST', data, {}).then(res => {
-				// 		console.log(res)
-				// 		if (res.code == 200) {
-				// 			that.resultContent = "<pre>" + res.msg + "</pre>";
-				// 			that.resultContentText = res.msg;
-				// 			// that.loadingText(that.resultContent)
-				// 			that.bootAns = that.resultContentText;
-				// 		} else if (res.code == 500) {
-				// 			if(!res.msg){
-				// 				uni.showToast({
-				// 					title: '请重新请求',
-				// 					icon: 'error',
-				// 					duration: 2000
-				// 				});
-				// 			}else{
-				// 			uni.showToast({
-				// 				title: res.msg,
-				// 				icon: 'error',
-				// 				duration: 2000
-				// 			});
-				// 			setTimeout(()=> {
-				// 				uni.switchTab({
-				// 					//保留当前页面，跳转到应用内的某个页面
-				// 				url: '/pages/main/form/index',
-				// 				})
-				// 			}, 2000)
-				// 			}
-				// 		}
-				// 		// uni.hideLoading();
-				// 	})
-				// }
-				
 
 			},
 			loadingText(text) {

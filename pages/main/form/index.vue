@@ -110,7 +110,6 @@
 
 <script>
 	import request from "../../../request/request.js";
-	import requestA from "../../../request/requestA.js";
 	//这里直接关掉激励视频
 	let videoAd = false;
 	// 在页面中定义插屏广告
