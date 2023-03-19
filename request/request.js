@@ -19,7 +19,7 @@ const msg = '获取中...'
 // const baseURL = 'https://chat.zclz.vip' //此处改成自己的域名
 const baseURL = 'http://localhost:8080' //此处改成自己的域名
 const wsUrl= 'ws://localhost:8080' 
-const request = (urlType= '', url = '', type = '', date = {}, header = {
+const request = (urlType= '', url = '', type = '', data = {}, header = {
 }) => {
 	var that = this
 	if(JSON.stringify(header)=='{}'){
@@ -32,7 +32,7 @@ const request = (urlType= '', url = '', type = '', date = {}, header = {
         uni.request({
             method: type,
             url: baseURL + url,
-            data: date,
+            data: data,
             header: header,
             dataType: 'json'         
         }).then((response) => {

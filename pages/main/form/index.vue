@@ -9,7 +9,13 @@
 				<view class="panel">
 					<view class="head">
 						<view class="title">填写您的问题</view>
-						<view class="tips">与人工智能对话</view>
+						<view class="tips" v-if="isLoginStatus">
+							{{userInfo.name}}
+						</view>
+						<view class="tips" v-else>
+							<text class="padding-left" @click="getUserProfile"
+								style="color: #007AFF;">登录</text>
+						</view>
 					</view>
 					<view class="textarea">
 						<u--textarea height="140" maxlength="-1" v-model="inputContent" placeholder="支持长按粘贴您的问题">
@@ -19,7 +25,7 @@
 
 					<view class="btn-group">
 						<view class="btn paste">
-							<u-button icon="file-text" text="粘贴问题"></u-button>
+							<u-button @click="paste" icon="file-text" text="粘贴问题"></u-button>
 						</view>
 						<view class="btn get">
 							<u-button @click="isOnSubmit" iconColor="#ffffff" color="#26B3A0" icon="edit-pen"
@@ -116,11 +122,14 @@
 				askNumber: 2,
 				is_open_api:'',
 				ai_chat_api:'',
-				open_api_key:''
+				open_api_key:'',
+				isLoginStatus:false,
+				userInfo:{}
+				
 			};
 		},
 		onLoad() {
-			this.getRequestContent();
+			this.initLogin()
 			this.initAskNumber();
 			// 在页面onLoad回调事件中创建激励视频广告实例
 			if (wx.createRewardedVideoAd) {
@@ -148,7 +157,98 @@
 			this.initAskNumber();
 			console.log("进入页面")
 		},
-		methods: {
+		methods: {	
+			//初始化看是否登录
+			initLogin() {
+				let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
+				if (tbAnsweUser) {
+					//此部设置用户信息,
+					this.userInfo.name = tbAnsweUser.name
+					this.userInfo.avatarUrl = tbAnsweUser.avatarUrl
+					this.isLoginStatus = true
+				}
+			},
+			isLogin() {
+				if (!this.isLoginStatus) {
+					this.getUserProfile();
+				}
+			},
+			paste(){
+				let that=this
+				uni.getClipboardData({
+					success: function (res) {
+						that.inputContent=res.data
+					}
+				});
+			},
+			getUserProfile(e) {
+				//首先判断缓存是否存在
+				let tbAnsweUser = uni.getStorageSync('tbAnsweUser'); //获取缓存内容
+				let that = this
+				if (!tbAnsweUser) {
+					// that.wxLogo();
+					uni.getProvider({
+						service: 'oauth',
+						success: function(res) {
+							if (~res.provider.indexOf('weixin')) {
+								uni.getUserProfile({
+									lang: 'zh_CN',
+									desc: '获取用户信息',
+									success: userInfo => {
+										uni.login({
+											provider: 'weixin',
+											success: loginInfo => {
+												uni.showLoading({
+													title: '登陆中...',
+													mask: true
+												});
+												//获取openid
+												request('', '/wx/' + loginInfo.code,
+													'get', {}, {}).then(res => {
+													console.log("首次请求返回结果", res
+														.data)
+													if (res.code == 0) {
+														that.userInfo.name =
+															userInfo.userInfo
+															.nickName
+														that.userInfo
+															.avatarUrl =
+															userInfo.userInfo
+															.avatarUrl
+														that.userInfo.openId =
+															res.data
+														uni.setStorageSync(
+															'tbAnsweUser',
+															that.userInfo);
+														//设置已经登陆的标志
+														that.isLoginStatus =
+															true;
+													} else {
+														uni.showToast({
+															title: '请求错误',
+															icon: 'error',
+															duration: 2000
+														});
+													}
+													uni.hideLoading();
+												})
+											},
+											fail: err => {
+												console.log(err, 'err')
+												uni.hideLoading();
+											}
+										});
+									},
+									fail: err => {
+										console.log(err, 'err')
+									}
+								});
+							}
+			
+						}
+					});
+				}
+			},
 			initAskNumber(){
 				console.log("初始值:",uni.getStorageSync('askNumberSync'))
 				let askNumberSync = uni.getStorageSync('askNumberSync');
@@ -177,6 +277,15 @@
 
 			},
 			onSubmitGPT() {
+				if(!this.isLoginStatus){
+					uni.showToast({
+						title: '请先登录',
+						icon: 'error',
+						duration: 2000
+					})
+					return;
+				}
+				
 				if(false){
 					this.videoAdLoad();	
 				}else{
@@ -219,17 +328,6 @@
 				      })
 				  })
 				}
-			},
-			getRequestContent(){
-				request('', '/ai/configInfo', 'POST', {}, {}).then(res => {
-					
-					if (res.code == 200) {
-						this.is_open_api = res.data.is_open_api;
-						this.ai_chat_api = res.data.ai_chat_api;
-						this.open_api_key = res.data.open_api_key; 
-					}
-				})
-				
 			},
 			/**
 			   * 用户点击右上角分享

@@ -131,7 +131,6 @@
 	export default {
 		onLoad() {
 			//获取请求链接
-			this.getRequestContent();
 			this.initLogin()
 			// 如果需要缓存消息缓存msgList即可
 			// 监听键盘拉起
@@ -159,6 +158,10 @@
 			l = query.screenWidth / 750
 			wh = query.windowHeight
 			this.srcollHeight = query.windowHeight + "px"
+		},
+		onUnload(option){
+			this.lockReconnect=true;
+			this.websock.close()
 		},
 		data() {
 			return {
@@ -256,8 +259,8 @@
 
 			},
 			websocketclose(e) { // 关闭
-				console.log('关闭了重连');
 				this.reconnect()
+				console.log('关闭了重连');
 			},
 			websocketonerror() {
 				console.log('断开了重连');
@@ -281,10 +284,16 @@
 				if (tbAnsweUser) {
 					let replyData = {};
 					//进行存储
-					request('', '/ai/reSetChat?openId=' + tbAnsweUser.openId, 'POST', replyData, {}).then(res => {
-						if (res.code == 200) {
+					request('', '/chat/resetChat/' + tbAnsweUser.openId, 'DELETE', null, {}).then(res => {
+						if (res.code == 0) {
 							uni.showToast({
 								title: '重置成功',
+								duration: 2000
+							});
+						}else{
+							uni.showToast({
+								title: '重置失败',
+								icon: 'error',
 								duration: 2000
 							});
 						}
@@ -378,7 +387,7 @@
 			// 回答问题的业务逻辑
 			answer(askItem) {
 				// 这里应该传入问题的id,模拟就用index代替了
-				console.log("问题吗这里是", askItem)
+				console.log("问题吗这里是 ", askItem)
 				this.msg = askItem;
 				this.sendMsg();
 			},
@@ -394,24 +403,23 @@
 					});
 					return;
 				}
-				if (true) {
-					//此步进行添加内容
-					// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
-					this.msgList.push({
-						"msg": msg,
-						"my": true
+				//此步进行添加内容
+				// 显示消息 msg消息文本,my鉴别是谁发的消息(不能用俩个消息数组循环,否则消息不会穿插)
+				this.msgList.push({
+					"msg": msg,
+					"my": true
+				})
+				this.msgGo();
+				// this.requestChatApi(msg);
+				let tbAnsweUser = uni.getStorageSync('tbAnsweUser');
+				this.websock.send({
+					data: JSON.stringify({
+						"openId": tbAnsweUser.openId,
+						"prompt": msg,
+						"isChat": true
 					})
-					this.msgGo();
-					// this.requestChatApi(msg);
-					let tbAnsweUser = uni.getStorageSync('tbAnsweUser');
-					this.websock.send({
-						data: JSON.stringify({
-							"openId": tbAnsweUser.openId,
-							"prompt": "say this is test1",
-							"isChat": true
-						})
-					})
-				}
+				})
+				this.msg=""
 
 			},
 			// 不建议输入框聚焦时操作此动画
@@ -509,18 +517,6 @@
 						}
 					});
 				}
-			},
-			getRequestContent() {
-
-				request('', '/ai/configInfo', 'POST', {}, {}).then(res => {
-
-					if (res.code == 200) {
-						this.is_open_api = res.data.is_open_api;
-						this.ai_chat_bot_api = res.data.ai_chat_bot_api;
-						this.open_api_key = res.data.open_api_key;
-					}
-				})
-
 			},
 			/**
 			 * 用户点击右上角分享
