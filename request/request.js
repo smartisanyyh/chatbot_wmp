@@ -16,15 +16,16 @@ const loginPage = '/pages/login/index'
  
 // 接口请求提示语句
 const msg = '获取中...'
-const baseURL = 'https://chat.zclz.vip' //此处改成自己的域名
-// const baseURL = 'http://localhost:8080' //此处改成自己的域名
+// const baseURL = 'https://chat.zclz.vip' //此处改成自己的域名
+const baseURL = 'http://localhost:8080' //此处改成自己的域名
+const wsUrl= 'ws://localhost:8080' 
 const request = (urlType= '', url = '', type = '', date = {}, header = {
 }) => {
 	var that = this
 	if(JSON.stringify(header)=='{}'){
 		header={
 			'Content-type': 'application/json',
-			'token': uni.getStorageSync('token')			
+			// 'token': uni.getStorageSync('token')			
 		}
 	}
     return new Promise((resolve, reject) => {
@@ -37,15 +38,15 @@ const request = (urlType= '', url = '', type = '', date = {}, header = {
         }).then((response) => {
 			console.log(response)
 			// uni.hideLoading();
-			if (response[1].data.status == 0) {
+			if (response[1].data.code != 0) {
 				uni.showToast({
-				    title: response[1].data.msg,
+				    title: response[1].data.message,
 					icon: 'error',
 				    duration: 2000
 				});
 				let [error, res] = response;
 				resolve(res.data);
-			} else if (response[1].data.status == 2) {
+			} else if (response[1].data.code == 2) {
 				uni.showToast({
 				    title: '请先登录',
 					icon: 'error',
@@ -71,3 +72,4 @@ const request = (urlType= '', url = '', type = '', date = {}, header = {
 	
 }
 export default request
+
