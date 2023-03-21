@@ -308,16 +308,18 @@
 			},
 			//历史信息
 			loadChatHistory() {
+				this.msgList=[]
+				this.msgList.push({
+					my: false,
+					msg: "大家好，我是全能机器人小助手，可以回答你们任何问题哦！",
+					type: 1,
+					questionList: ["你认为人工智能会取代人类吗？"
+					, "你能为我推荐一些好的电影吗？","你认为未来会发生什么？"],
+				})
 				let tbAnsweUser = uni.getStorageSync('tbAnsweUser');
+				if(!tbAnsweUser) return;
 				request('', '/chat/history/' + tbAnsweUser.openId, 'GET', null, {}).then(res => {
-					this.msgList=[]
-					this.msgList.push({
-						my: false,
-						msg: "大家好，我是全能机器人小助手，可以回答你们任何问题哦！",
-						type: 1,
-						questionList: ["你认为人工智能会取代人类吗？"
-						, "你能为我推荐一些好的电影吗？","你认为未来会发生什么？"],
-					})
+
 					if (res.code == 0) {
 						console.log(res.data)
 						
@@ -529,6 +531,7 @@
 														//设置已经登陆的标志
 														that.isLoginStatus =
 															true;
+														that.loadChatHistory()
 														that.initWebSocket()
 													} else {
 														uni.showToast({
