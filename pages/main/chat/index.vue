@@ -257,8 +257,9 @@
 				this.reconnect()
 				console.log('关闭了重连');
 			},
-			websocketonerror() {
+			websocketonerror(e) {
 				console.log('断开了重连');
+				console.log(e);
 				this.reconnect()
 			},
 			reconnect() {
