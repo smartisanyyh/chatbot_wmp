@@ -68,10 +68,12 @@
 				})
 			},
 			gonavigate() {
-				uni.switchTab({
-					//保留当前页面，跳转到应用内的某个页面
-			 	url: '/pages/main/form/index',
-				})
+				uni
+					uni.showToast({
+						title: '功能维护中,请使用聊天模式',
+						icon: 'none',
+						duration: 2000
+					})
 			},
 			gonavigatechat() {
 				uni.navigateTo({
